@@ -1,16 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Image } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Button } from './ui/button';
 import { Text } from './ui/text';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
-import { analyzeBill } from '~/lib/services/together-ai';
+import { useAuth } from '~/lib/context/auth';
+import { supabase } from '~/lib/services/supabase';
 
 export function BillSplitter() {
+  const { session, loading: authLoading, signInAnonymously } = useAuth();
   const [image, setImage] = useState<string | null>(null);
   const [numPeople, setNumPeople] = useState(2);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<number | null>(null);
+
+  // Auto sign in anonymously if not signed in
+  useEffect(() => {
+    if (!authLoading && !session) {
+      signInAnonymously().catch(console.error);
+    }
+  }, [authLoading, session, signInAnonymously]);
 
   const pickImage = async () => {
     try {
@@ -69,10 +78,23 @@ export function BillSplitter() {
       return;
     }
 
+    if (!session) {
+      alert('Please wait while we set up your session');
+      return;
+    }
+
     setLoading(true);
     try {
-      const response = await analyzeBill(image);
-      setResult(response.total / numPeople);
+      // Call Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('analyze-bill', {
+        body: {
+          imageUri: image,
+          numPeople,
+        },
+      });
+
+      if (error) throw error;
+      setResult(data.amountPerPerson);
     } catch (error) {
       console.error('Error analyzing bill:', error);
       alert('Error analyzing bill. Please try again.');
@@ -80,6 +102,14 @@ export function BillSplitter() {
       setLoading(false);
     }
   };
+
+  if (authLoading) {
+    return (
+      <View className="flex-1 items-center justify-center">
+        <Text>Setting up your session...</Text>
+      </View>
+    );
+  }
 
   return (
     <View className="flex-1 p-4">
@@ -131,7 +161,7 @@ export function BillSplitter() {
           <Button
             className="w-full"
             onPress={handleBillAnalysis}
-            disabled={!image || loading}
+            disabled={!image || loading || !session}
           >
             <Text>{loading ? 'Analyzing...' : 'Split Bill'}</Text>
           </Button>
