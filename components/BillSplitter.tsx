@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image } from 'react-native';
+import {View, Image, Pressable, Animated} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Button } from './ui/button';
 import { Text } from './ui/text';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { useAuth } from '~/lib/context/auth';
 import { supabase } from '~/lib/services/supabase';
+import { Camera } from '~/lib/icons/Camera';
+import { Images } from '~/lib/icons/Images';
+import ScrollView = Animated.ScrollView;
 
 export function BillSplitter() {
   const { session, loading: authLoading, signInAnonymously } = useAuth();
@@ -153,70 +156,99 @@ export function BillSplitter() {
   }
 
   return (
-    <View className="flex-1 p-4">
-      <Card className="w-full max-w-md mx-auto">
-        <CardHeader>
-          <CardTitle className="text-center">Split My Bill</CardTitle>
-        </CardHeader>
-        <CardContent className="items-center space-y-4">
-          {image ? (
-            <Image
-              source={{ uri: image }}
-              className="w-full h-48 rounded-lg"
-              resizeMode="cover"
-            />
-          ) : (
-            <View className="w-full h-48 bg-muted rounded-lg items-center justify-center">
-              <Text className="text-muted-foreground">No image selected</Text>
+    <ScrollView className="flex-1 bg-background">
+      <View className="container mx-auto px-4 py-6 h-full">
+        <Card className="w-full max-w-md mx-auto h-full">
+          <CardHeader>
+            <CardTitle className="text-2xl text-center">
+              <Text className="text-2xl font-bold">Split My Bill</Text>
+            </CardTitle>
+          </CardHeader>
+
+          <CardContent className="flex-1 gap-4">
+            <Pressable 
+              onPress={pickImage}
+              className="w-full aspect-[4/3] bg-muted rounded-lg overflow-hidden border-2 border-foreground border-dashed"
+            >
+              {image ? (
+                <Image
+                  source={{ uri: image }}
+                  className="w-full h-full"
+                  resizeMode="cover"
+                />
+              ) : (
+                <View className="w-full h-full items-center justify-center">
+                  <Images className="w-12 h-12 mb-3 text-muted-foreground" />
+                  <Text className="text-sm text-muted-foreground">Tap to select an image</Text>
+                </View>
+              )}
+            </Pressable>
+
+            <View className="gap-4">
+              <View className="flex-row justify-between gap-4">
+                <Button 
+                  className="flex-1 flex-row items-center justify-center gap-1"
+                  onPress={takePhoto}
+                >
+                  <Camera className='text-secondary' size={20} strokeWidth={1.25} />
+                  <Text>Take Photo</Text>
+                </Button>
+                <Button 
+                  className="flex-1 flex-row items-center justify-center gap-1"
+                  onPress={pickImage}
+                >
+                  <Images className='text-secondary' size={20} strokeWidth={1.25} />
+                  <Text>Pick Image</Text>
+                </Button>
+              </View>
+
+              <View className="bg-muted/50 rounded-lg p-4">
+                <View className="flex-row items-center justify-between">
+                  <Text className="text-base">Split between:</Text>
+                  <View className="flex-row items-center space-x-6">
+                    <Button
+                      onPress={() => numPeople > 1 && setNumPeople(n => n - 1)}
+                      variant="outline"
+                      className="h-14 w-14 rounded-full bg-background border-2"
+                    >
+                      <Text className="text-2xl">-</Text>
+                    </Button>
+                    <Text className="text-2xl font-medium min-w-[32px] text-center">
+                      {numPeople}
+                    </Text>
+                    <Button
+                      onPress={() => setNumPeople(n => n + 1)}
+                      variant="outline"
+                      className="h-14 w-14 rounded-full bg-background border-2"
+                    >
+                      <Text className="text-2xl">+</Text>
+                    </Button>
+                  </View>
+                </View>
+              </View>
+
+              <Button
+                className="w-full h-14 sm:h-12"
+                onPress={handleBillAnalysis}
+                disabled={!image || loading || !session}
+              >
+                <Text className="text-base">{loading ? 'Analyzing...' : 'Split it!'}</Text>
+              </Button>
             </View>
+          </CardContent>
+
+          {result !== null && (
+            <CardFooter className="border-t border-border mt-auto">
+              <View className="w-full py-6 space-y-2">
+                <Text className="text-base text-muted-foreground text-center">Each person pays:</Text>
+                <Text className="text-3xl font-bold text-primary text-center">
+                  ${result.toFixed(2)}
+                </Text>
+              </View>
+            </CardFooter>
           )}
-
-          <View className="flex-row space-x-2">
-            <Button className="flex-1" onPress={takePhoto}>
-              <Text>Take Photo</Text>
-            </Button>
-            <Button className="flex-1" onPress={pickImage}>
-              <Text>Pick Image</Text>
-            </Button>
-          </View>
-
-          <View className="flex-row items-center space-x-4">
-            <Text>Split between:</Text>
-            <View className="flex-row items-center space-x-2">
-              <Button
-                onPress={() => numPeople > 1 && setNumPeople(n => n - 1)}
-                variant="outline"
-              >
-                <Text>-</Text>
-              </Button>
-              <Text className="min-w-[40px] text-center">{numPeople}</Text>
-              <Button
-                onPress={() => setNumPeople(n => n + 1)}
-                variant="outline"
-              >
-                <Text>+</Text>
-              </Button>
-            </View>
-          </View>
-
-          <Button
-            className="w-full"
-            onPress={handleBillAnalysis}
-            disabled={!image || loading || !session}
-          >
-            <Text>{loading ? 'Analyzing...' : 'Split Bill'}</Text>
-          </Button>
-        </CardContent>
-
-        {result !== null && (
-          <CardFooter className="flex-col items-center">
-            <Text className="text-lg font-semibold">Each person pays:</Text>
-            <Text className="text-2xl font-bold text-primary">
-              ${result.toFixed(2)}
-            </Text>
-          </CardFooter>
-        )}
-      </Card>
-    </View>
+        </Card>
+      </View>
+    </ScrollView>
   );
 } 

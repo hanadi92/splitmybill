@@ -44,7 +44,7 @@ export default function RootLayout() {
           <Stack.Screen
             name='index'
             options={{
-              title: 'Split My Bill',
+              title: 'OhMyServer.de',
               headerRight: () => <ThemeToggle />,
             }}
           />
