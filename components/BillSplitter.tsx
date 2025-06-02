@@ -94,7 +94,27 @@ export function BillSplitter() {
       });
 
       if (error) throw error;
-      setResult(data.amountPerPerson);
+
+      if (!data?.analysis) {
+        throw new Error('Invalid response format from server');
+      }
+
+      console.log(data.analysis);
+      // Extract JSON from the text response
+      const jsonMatch = data.analysis.match(/\{[^}]+\}/g);
+      if (!jsonMatch) {
+        throw new Error('Could not find JSON in response');
+      }
+
+      // Get the last JSON object in case there are multiple matches
+      const lastJson = jsonMatch[jsonMatch.length - 1];
+      const analysisResult = JSON.parse(lastJson);
+      
+      if (!analysisResult.splitAmount || typeof analysisResult.splitAmount !== 'number') {
+        throw new Error('Invalid amount format in response');
+      }
+
+      setResult(analysisResult.splitAmount);
     } catch (error) {
       console.error('Error analyzing bill:', error);
       alert('Error analyzing bill. Please try again.');
