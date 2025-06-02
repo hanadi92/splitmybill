@@ -31,16 +31,18 @@ export function BillSplitter() {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
+        // @ts-ignore
         mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 1,
+        base64: true,
       });
 
-      console.log(result);
-
       if (!result.canceled) {
-        setImage(result.assets[0].uri);
+        // Store the base64 data with the data URI prefix
+        const base64Image = `data:image/jpeg;base64,${result.assets[0].base64}`;
+        setImage(base64Image);
         setResult(null); // Reset result when new image is picked
       }
     } catch (error) {
@@ -102,21 +104,38 @@ export function BillSplitter() {
       }
 
       console.log(data.analysis);
-      // Extract JSON from the text response
+      // First try to extract JSON if present
       const jsonMatch = data.analysis.match(/\{[^}]+\}/g);
-      if (!jsonMatch) {
-        throw new Error('Could not find JSON in response');
-      }
-
-      // Get the last JSON object in case there are multiple matches
-      const lastJson = jsonMatch[jsonMatch.length - 1];
-      const analysisResult = JSON.parse(lastJson);
+      let splitAmount: number | null = null;
       
-      if (!analysisResult.splitAmount || typeof analysisResult.splitAmount !== 'number') {
-        throw new Error('Invalid amount format in response');
+      if (jsonMatch) {
+        // Try parsing structured JSON response
+        try {
+          const lastJson = jsonMatch[jsonMatch.length - 1];
+          const analysisResult = JSON.parse(lastJson);
+          if (analysisResult.splitAmount && typeof analysisResult.splitAmount === 'number') {
+            splitAmount = analysisResult.splitAmount;
+          }
+        } catch (e) {
+          console.log('Failed to parse JSON, trying narrative format');
+        }
       }
 
-      setResult(analysisResult.splitAmount);
+      // If JSON parsing failed, try to extract amount from narrative text
+      if (!splitAmount) {
+        const amountMatch = data.analysis.match(/\$(\d+\.?\d*)/g);
+        if (amountMatch && amountMatch.length > 0) {
+          // Get the last dollar amount mentioned (usually the split amount)
+          const lastAmount = amountMatch[amountMatch.length - 1];
+          splitAmount = parseFloat(lastAmount.replace('$', ''));
+        }
+      }
+
+      if (!splitAmount) {
+        throw new Error('Could not extract split amount from response');
+      }
+
+      setResult(splitAmount);
     } catch (error) {
       console.error('Error analyzing bill:', error);
       alert('Error analyzing bill. Please try again.');
