@@ -1,16 +1,13 @@
-# Starter base
+# Split My Bill
 
-A starting point to help you set up your project quickly and use the common components provided by `react-native-reusables`. The idea is to make it easier for you to get started.
+Reads a photo of your bill and splits it by the chosen number of people using AI models through Supabase Edge Functions.
 
 ## Features
 
-- NativeWind v4
-- Dark and light mode
-  - Android Navigation Bar matches mode
-  - Persistent mode
-- Common components
-  - ThemeToggle, Avatar, Button, Card, Progress, Text, Tooltip
+- React Native (web, ios, android)
+- Supabase Edge Functions
+- Upstash for Redis and Rate limiting
+- Together.ai for using AI through API
+- Hosted on Vercel [ohmyserver.de](ohmyserver.de)
 
-<img src="https://github.com/mrzachnugent/react-native-reusables/assets/63797719/42c94108-38a7-498b-9c70-18640420f1bc"
-     alt="starter-base-template"
-     style="width:270px;" />
+<img width="529" alt="Screenshot 2025-06-03 at 11 10 25 PM" src="https://github.com/user-attachments/assets/2e82af6f-4617-458e-9747-426a8e098775" />
