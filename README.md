@@ -10,4 +10,4 @@ Reads a photo of your bill and splits it by the chosen number of people using AI
 - Together.ai for using AI through API
 - Hosted on Vercel [ohmyserver.de](ohmyserver.de)
 
-<img width="529" alt="Screenshot 2025-06-03 at 11 10 25 PM" src="https://github.com/user-attachments/assets/2e82af6f-4617-458e-9747-426a8e098775" />
+<img width="530" alt="Screenshot 2025-06-03 at 11 34 04 PM" src="https://github.com/user-attachments/assets/88449f8b-4258-4049-93ef-f40ce374a546" />
