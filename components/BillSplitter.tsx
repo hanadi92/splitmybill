@@ -8,6 +8,7 @@ import { useAuth } from '~/lib/context/auth';
 import { supabase } from '~/lib/services/supabase';
 import { Camera } from '~/lib/icons/Camera';
 import { Images } from '~/lib/icons/Images';
+import { Trash2 } from '~/lib/icons/Trash';
 import ScrollView = Animated.ScrollView;
 
 export function BillSplitter() {
@@ -168,14 +169,25 @@ export function BillSplitter() {
           <CardContent className="flex-1 gap-4">
             <Pressable 
               onPress={pickImage}
-              className="w-full aspect-[4/3] bg-muted rounded-lg overflow-hidden border-2 border-foreground border-dashed"
+              className="w-full aspect-[4/3] bg-muted rounded-lg overflow-hidden border-2 border-foreground border-dashed relative"
             >
               {image ? (
-                <Image
-                  source={{ uri: image }}
-                  className="w-full h-full"
-                  resizeMode="cover"
-                />
+                <>
+                  <Image
+                    source={{ uri: image }}
+                    className="w-full h-full"
+                    resizeMode="cover"
+                  />
+                  <Pressable 
+                    onPress={() => {
+                      setImage(null);
+                      setResult(null);
+                    }}
+                    className="absolute top-2 right-2 bg-background/80 p-2 rounded-full"
+                  >
+                    <Trash2 className="text-foreground" size={20} strokeWidth={1.25} />
+                  </Pressable>
+                </>
               ) : (
                 <View className="w-full h-full items-center justify-center">
                   <Images className="w-12 h-12 mb-3 text-muted-foreground" />
