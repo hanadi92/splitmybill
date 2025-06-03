@@ -8,7 +8,6 @@ import { Appearance, Platform, View } from 'react-native';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { PortalHost } from '@rn-primitives/portal';
-import { ThemeToggle } from '~/components/ThemeToggle';
 import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
 import { AuthProvider } from '~/lib/context/auth';
 
@@ -40,17 +39,7 @@ export default function RootLayout() {
     <AuthProvider>
       <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
         <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-        <Stack>
-          <Stack.Screen
-            name='index'
-            options={{
-              title: '',
-              // @ts-ignore
-              headerStyle: { borderBottomWidth: 0 },
-              headerRight: () => <ThemeToggle />,
-            }}
-          />
-        </Stack>
+        <Stack screenOptions={{ headerShown: false }} />
         <PortalHost />
       </ThemeProvider>
     </AuthProvider>

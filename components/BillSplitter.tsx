@@ -9,6 +9,7 @@ import { supabase } from '~/lib/services/supabase';
 import { Camera } from '~/lib/icons/Camera';
 import { Images } from '~/lib/icons/Images';
 import { Trash2 } from '~/lib/icons/Trash';
+import { ThemeToggle } from './ThemeToggle';
 import ScrollView = Animated.ScrollView;
 
 export function BillSplitter() {
@@ -158,12 +159,15 @@ export function BillSplitter() {
 
   return (
     <ScrollView className="flex-1 bg-background">
-      <View className="container mx-auto px-4 py-6 h-full">
-        <Card className="w-full max-w-md mx-auto h-full web:shadow-xl web:dark:shadow-foreground">
+      <View className="flex-1 container mx-auto px-4 py-6 min-h-screen items-center justify-center">
+        <Card className="w-full max-w-md web:shadow-xl web:dark:shadow-foreground">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">
-              <Text className="text-2xl font-bold">Split My Bill</Text>
-            </CardTitle>
+            <View className="flex-row items-center justify-between">
+              <CardTitle className="text-2xl">
+                <Text className="text-2xl font-bold">Split My Bill</Text>
+              </CardTitle>
+              <ThemeToggle />
+            </View>
           </CardHeader>
 
           <CardContent className="flex-1 gap-4">
