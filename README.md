@@ -2,7 +2,7 @@
 
 Reads a photo of your bill and splits it by the chosen number of people using AI models through Supabase Edge Functions.
 
-## Features
+## Tech-Stack
 
 - React Native (web, ios, android)
 - Supabase Edge Functions
