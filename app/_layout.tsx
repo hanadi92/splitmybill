@@ -44,7 +44,9 @@ export default function RootLayout() {
           <Stack.Screen
             name='index'
             options={{
-              title: 'OhMyServer.de',
+              title: '',
+              // @ts-ignore
+              headerStyle: { borderBottomWidth: 0 },
               headerRight: () => <ThemeToggle />,
             }}
           />

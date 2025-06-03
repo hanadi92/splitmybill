@@ -158,7 +158,7 @@ export function BillSplitter() {
   return (
     <ScrollView className="flex-1 bg-background">
       <View className="container mx-auto px-4 py-6 h-full">
-        <Card className="w-full max-w-md mx-auto h-full">
+        <Card className="w-full max-w-md mx-auto h-full web:shadow-xl web:dark:shadow-foreground">
           <CardHeader>
             <CardTitle className="text-2xl text-center">
               <Text className="text-2xl font-bold">Split My Bill</Text>
@@ -202,7 +202,7 @@ export function BillSplitter() {
                 </Button>
               </View>
 
-              <View className="bg-muted/50 rounded-lg p-4">
+              <View className="rounded-lg p-4">
                 <View className="flex-row items-center justify-between">
                   <Text className="text-base">Split between:</Text>
                   <View className="flex-row items-center space-x-6">
@@ -230,7 +230,7 @@ export function BillSplitter() {
               <Button
                 className="w-full h-14 sm:h-12"
                 onPress={handleBillAnalysis}
-                disabled={!image || loading || !session}
+                disabled={loading || !session}
               >
                 <Text className="text-base">{loading ? 'Analyzing...' : 'Split it!'}</Text>
               </Button>
