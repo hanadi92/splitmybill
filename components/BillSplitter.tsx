@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {View, Image, Pressable, Animated} from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Button } from './ui/button';
@@ -18,13 +18,6 @@ export function BillSplitter() {
   const [numPeople, setNumPeople] = useState(2);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<number | null>(null);
-
-  // Auto sign in anonymously if not signed in
-  useEffect(() => {
-    if (!authLoading && !session) {
-      signInAnonymously().catch(console.error);
-    }
-  }, [authLoading, session, signInAnonymously]);
 
   const pickImage = async () => {
     try {
@@ -87,13 +80,13 @@ export function BillSplitter() {
       return;
     }
 
-    if (!session) {
-      alert('Please wait while we set up your session');
-      return;
-    }
-
     setLoading(true);
     try {
+      // Sign in anonymously if not already signed in
+      if (!session && !authLoading) {
+        await signInAnonymously();
+      }
+
       // Call Supabase Edge Function
       const { data, error } = await supabase.functions.invoke('analyze-bill', {
         body: {
@@ -149,14 +142,6 @@ export function BillSplitter() {
     }
   };
 
-  if (authLoading) {
-    return (
-      <View className="flex-1 items-center justify-center">
-        <Text>Setting up your session...</Text>
-      </View>
-    );
-  }
-
   return (
     <ScrollView className="flex-1 bg-background">
       <View className="flex-1 container mx-auto px-4 py-6 min-h-screen items-center justify-center">
@@ -182,7 +167,7 @@ export function BillSplitter() {
                     className="w-full h-full"
                     resizeMode="cover"
                   />
-                  <Pressable 
+                  <Pressable
                     onPress={() => {
                       setImage(null);
                       setResult(null);
@@ -246,7 +231,7 @@ export function BillSplitter() {
               <Button
                 className="w-full h-14 sm:h-12"
                 onPress={handleBillAnalysis}
-                disabled={loading || !session}
+                disabled={loading}
               >
                 <Text className="text-base">{loading ? 'Analyzing...' : 'Split it!'}</Text>
               </Button>
