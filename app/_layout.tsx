@@ -1,15 +1,17 @@
 import '~/global.css';
 
 import { DarkTheme, DefaultTheme, Theme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
+import { Tabs } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Appearance, Platform, View } from 'react-native';
+import { Appearance, Platform } from 'react-native';
 import { NAV_THEME } from '~/lib/constants';
 import { useColorScheme } from '~/lib/useColorScheme';
 import { PortalHost } from '@rn-primitives/portal';
 import { setAndroidNavigationBar } from '~/lib/android-navigation-bar';
 import { AuthProvider } from '~/lib/context/auth';
+import { Receipt } from '~/lib/icons/Receipt';
+import { Images } from '~/lib/icons/Images';
 
 const LIGHT_THEME: Theme = {
   ...DefaultTheme,
@@ -39,7 +41,52 @@ export default function RootLayout() {
     <AuthProvider>
       <ThemeProvider value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}>
         <StatusBar style={isDarkColorScheme ? 'light' : 'dark'} />
-        <Stack screenOptions={{ headerShown: false }} />
+        <Tabs
+          initialRouteName="traditional"
+          screenOptions={{
+            headerShown: false,
+            tabBarStyle: {
+              backgroundColor: isDarkColorScheme ? NAV_THEME.dark.background : NAV_THEME.light.background,
+              borderTopColor: isDarkColorScheme ? NAV_THEME.dark.border : NAV_THEME.light.border,
+            },
+            tabBarActiveTintColor: isDarkColorScheme ? NAV_THEME.dark.primary : NAV_THEME.light.primary,
+            tabBarInactiveTintColor: isDarkColorScheme ? NAV_THEME.dark.text : NAV_THEME.light.text,
+          }}
+        >
+          <Tabs.Screen
+            name="traditional"
+            options={{
+              title: 'Traditional',
+              tabBarLabel: 'Traditional',
+              tabBarIcon: ({ color, size }) => (
+                <Receipt color={color} size={size} strokeWidth={1.5} />
+              ),
+            }}
+          />
+          <Tabs.Screen
+            name="interactive"
+            options={{
+              title: 'Interactive',
+              tabBarLabel: 'Interactive',
+              tabBarIcon: ({ color, size }) => (
+                <Images color={color} size={size} strokeWidth={1.5} />
+              ),
+            }}
+          />
+          {/* Hide these screens from the tab bar */}
+          <Tabs.Screen
+            name="index"
+            options={{
+              href: null,
+            }}
+          />
+          <Tabs.Screen
+            name="+not-found"
+            options={{
+              href: null,
+            }}
+          />
+        </Tabs>
         <PortalHost />
       </ThemeProvider>
     </AuthProvider>
