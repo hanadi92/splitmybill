@@ -3,6 +3,12 @@ import { Item } from '~/components/ui/interactive/bill-result';
 import { useAuth } from '~/lib/context/auth';
 import { supabase } from '~/lib/services/supabase';
 
+export interface UncleanedItem {
+  name: string;
+  price: string;
+  quantity: string;
+}
+
 interface UseBillAnalysisResult {
   loading: boolean;
   result: number | null;
@@ -135,8 +141,18 @@ export function useInteractiveBillAnalysis(): UseInteractiveBillAnalysisResult {
         throw new Error('No JSON found in response');
       }
 
-      const json: { totalAmount: number, items: Array<Item> } = JSON.parse(jsonMatch[0]);
-      setResult({ total: json.totalAmount, items: json.items });
+      const json: { totalAmount: string, items: Array<UncleanedItem> } = JSON.parse(jsonMatch[0]);
+      
+      const cleanedItems: Item[] = json.items.map((item: UncleanedItem) => ({
+        name: item.name,
+        price: typeof item.price === 'string' ? parseFloat(item.price.replace(/[^0-9.-]+/g, '')) : item.price,
+        quantity: typeof item.quantity === 'string' ? parseInt(item.quantity.replace(/[^0-9-]+/g, ''), 10) : item.quantity
+      }));
+      const cleanedTotal = typeof json.totalAmount === 'string'
+        ? parseFloat(json.totalAmount.replace(/[^0-9.-]+/g, ''))
+        : json.totalAmount;
+ 
+      setResult({ total: cleanedTotal, items: cleanedItems });
     } catch (error) {
       console.error('Error analyzing bill:', error);
       alert('Error analyzing bill. Please try again.');
