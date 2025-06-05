@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Animated } from 'react-native';
+import { View, ScrollView } from 'react-native';
 import { Button } from '../button';
 import { Text } from '../text';
 import { Card, CardContent, CardFooter, CardHeader } from '../card';
@@ -7,7 +7,6 @@ import { BillHeader } from '../bill-header';
 import { BillImagePicker } from '../bill-image-picker';
 import { PeopleCounter } from '../people-counter';
 import { BillResult, Item } from '../interactive/bill-result';
-import ScrollView = Animated.ScrollView;
 
 interface BillSplitterUIProps {
   title: string;
@@ -20,6 +19,7 @@ interface BillSplitterUIProps {
   onImageClear: () => void;
   onNumPeopleChange?: (change: -1 | 1) => void;
   onAnalyze: () => Promise<void>;
+  onSubmit?: () => void;
   renderResult?: () => React.ReactNode;
 }
 
@@ -34,10 +34,24 @@ export function BillSplitterUI({
   onImageClear,
   onNumPeopleChange,
   onAnalyze,
+  onSubmit,
   renderResult,
 }: BillSplitterUIProps) {
+  const scrollViewRef = React.useRef<ScrollView>(null);
+  // Scroll to results when they become available
+  React.useEffect(() => {
+    if (result && scrollViewRef.current) {
+      setTimeout(() => {
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    }
+  }, [result]);
+
   return (
-    <ScrollView className="flex-1 bg-background">
+    <ScrollView 
+      ref={scrollViewRef}
+      className="flex-1 bg-background"
+    >
       <View className="flex-1 container mx-auto px-4 py-6 min-h-screen items-center justify-center">
         <Card className="w-full max-w-md web:shadow-xl web:dark:shadow-foreground">
           <CardHeader>
@@ -71,7 +85,11 @@ export function BillSplitterUI({
           {result !== null && (
             <CardFooter className="border-t border-border mt-auto">
               {renderResult ? renderResult() : (
-                <BillResult total={result.total} items={result.items} />
+                <BillResult 
+                  total={result.total} 
+                  items={result.items}
+                  onSubmit={onSubmit}
+                />
               )}
             </CardFooter>
           )}

@@ -18,6 +18,13 @@ export function InteractiveBillSplitter() {
     }
   };
 
+  const handleSubmit = async () => {
+    // TODO: Implement the submission logic here
+    // For now, just clear the form
+    setImage(null);
+    setResult(null);
+  };
+
   if (authLoading) {
     return (
       <View className='flex-1 items-center justify-center p-4'>
@@ -49,6 +56,7 @@ export function InteractiveBillSplitter() {
         setResult(null);
       }}
       onAnalyze={handleBillAnalysis}
+      onSubmit={handleSubmit}
     />
   );
 } 
