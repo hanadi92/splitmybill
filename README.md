@@ -1,4 +1,4 @@
-# Split My Bill
+# Split My Bill 🔥
 
 Reads a photo of your bill and splits it by the chosen number of people using AI models through Supabase Edge Functions.
 
