@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '../card';
 import { BillHeader } from '../bill-header';
 import { BillImagePicker } from '../bill-image-picker';
 import { PeopleCounter } from '../people-counter';
-import { BillResult } from '../bill-result';
+import { BillResult } from './bill-result';
 import ScrollView = Animated.ScrollView;
 
 interface BillSplitterUIProps {

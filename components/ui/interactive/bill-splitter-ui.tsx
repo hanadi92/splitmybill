@@ -6,7 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '../card';
 import { BillHeader } from '../bill-header';
 import { BillImagePicker } from '../bill-image-picker';
 import { PeopleCounter } from '../people-counter';
-import { BillResult } from '../bill-result';
+import { BillResult, Item } from '../interactive/bill-result';
 import ScrollView = Animated.ScrollView;
 
 interface BillSplitterUIProps {
@@ -14,7 +14,7 @@ interface BillSplitterUIProps {
   image: string | null;
   numPeople?: number;
   loading: boolean;
-  result: number | null;
+  result: { total: number, items: Array<Item> } | null;
   onImagePick: () => Promise<void>;
   onPhotoTake: () => Promise<void>;
   onImageClear: () => void;
@@ -71,7 +71,7 @@ export function BillSplitterUI({
           {result !== null && (
             <CardFooter className="border-t border-border mt-auto">
               {renderResult ? renderResult() : (
-                <BillResult amount={result} />
+                <BillResult total={result.total} items={result.items} />
               )}
             </CardFooter>
           )}

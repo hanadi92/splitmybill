@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Item } from '~/components/ui/interactive/bill-result';
 import { useAuth } from '~/lib/context/auth';
 import { supabase } from '~/lib/services/supabase';
 
@@ -11,8 +12,8 @@ interface UseBillAnalysisResult {
 
 interface UseInteractiveBillAnalysisResult {
   loading: boolean;
-  result: number | null;
-  setResult: (result: number | null) => void;
+  result: { total: number, items: Array<Item> } | null;
+  setResult: (result: { total: number, items: Array<Item> } | null) => void;
   analyzeBill: (imageUri: string) => Promise<void>;
 }
 
@@ -39,6 +40,7 @@ export function useBillAnalysis(): UseBillAnalysisResult {
         body: {
           imageUri,
           numPeople,
+          interactive: false,
         },
       });
 
@@ -99,7 +101,7 @@ export function useBillAnalysis(): UseBillAnalysisResult {
 export function useInteractiveBillAnalysis(): UseInteractiveBillAnalysisResult {
   const { session, loading: authLoading, signInAnonymously } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<number | null>(null);
+  const [result, setResult] = useState<{ total: number, items: Array<Item> } | null>(null);
 
   const analyzeBill = async (imageUri: string) => {
     if (!imageUri) {
@@ -114,8 +116,27 @@ export function useInteractiveBillAnalysis(): UseInteractiveBillAnalysisResult {
         await signInAnonymously();
       }
 
-      // todo logic for interactive mode
-      setResult(1.4);
+      // Call Supabase Edge Function
+      const { data, error } = await supabase.functions.invoke('analyze-bill', {
+        body: {
+          imageUri,
+          interactive: true,
+        },
+      });
+
+      if (error) throw error;
+
+      if (!data?.analysis) {
+        throw new Error('Invalid response format from server');
+      }
+
+      const jsonMatch = data.analysis.match(/{[\s\S]*}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in response');
+      }
+
+      const json: { totalAmount: number, items: Array<Item> } = JSON.parse(jsonMatch[0]);
+      setResult({ total: json.totalAmount, items: json.items });
     } catch (error) {
       console.error('Error analyzing bill:', error);
       alert('Error analyzing bill. Please try again.');

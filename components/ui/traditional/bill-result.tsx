@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { View } from 'react-native';
-import { Text } from './text';
+import { Text } from '../text';
 
 interface BillResultProps {
   amount: number;
