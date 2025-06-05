@@ -3,20 +3,16 @@ import { View } from 'react-native';
 import { Text } from './ui/text';
 import { Button } from './ui/button';
 import { useAuth } from '~/lib/context/auth';
+import { BillSplitterUI } from './ui/traditional/bill-splitter-ui';
 import { useImagePicker } from '~/lib/hooks/useImagePicker';
-import { useInteractiveBillAnalysis } from '~/lib/hooks/useBillAnalysis';
-import { BillSplitterUI } from './ui/interactive/bill-splitter-ui';
+import { useBillAnalysis } from '~/lib/hooks/useBillAnalysis';
+import { useState } from 'react';
 
-export function InteractiveBillSplitter() {
+export function TraditionalBillSplitter() {
   const { session, loading: authLoading, signInAnonymously } = useAuth();
+  const [numPeople, setNumPeople] = useState(2);
   const { image, setImage, pickImage, takePhoto } = useImagePicker();
-  const { loading, result, setResult, analyzeBill } = useInteractiveBillAnalysis();
-
-  const handleBillAnalysis = async () => {
-    if (image) {
-      await analyzeBill(image);
-    }
-  };
+  const { loading, result, setResult, analyzeBill } = useBillAnalysis();
 
   if (authLoading) {
     return (
@@ -36,10 +32,17 @@ export function InteractiveBillSplitter() {
     );
   }
 
+  const handleBillAnalysis = async () => {
+    if (image) {
+      await analyzeBill(image, numPeople);
+    }
+  };
+
   return (
     <BillSplitterUI
-      title="Interactive Bill Splitter"
+      title="Split my bill"
       image={image}
+      numPeople={numPeople}
       loading={loading}
       result={result}
       onImagePick={pickImage}
@@ -48,6 +51,7 @@ export function InteractiveBillSplitter() {
         setImage(null);
         setResult(null);
       }}
+      onNumPeopleChange={(change) => setNumPeople(n => n + change)}
       onAnalyze={handleBillAnalysis}
     />
   );

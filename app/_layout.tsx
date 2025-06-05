@@ -49,6 +49,7 @@ export default function RootLayout() {
               backgroundColor: isDarkColorScheme ? NAV_THEME.dark.background : NAV_THEME.light.background,
               borderTopColor: isDarkColorScheme ? NAV_THEME.dark.border : NAV_THEME.light.border,
             },
+            // todo fix this colors
             tabBarActiveTintColor: isDarkColorScheme ? NAV_THEME.dark.primary : NAV_THEME.light.primary,
             tabBarInactiveTintColor: isDarkColorScheme ? NAV_THEME.dark.text : NAV_THEME.light.text,
           }}
