@@ -21,6 +21,7 @@ interface BillSplitterUIProps {
   onAnalyze: () => Promise<void>;
   onSubmit?: () => void;
   renderResult?: () => React.ReactNode;
+  scrollViewRef?: React.RefObject<ScrollView | null>;
 }
 
 export function BillSplitterUI({
@@ -36,20 +37,23 @@ export function BillSplitterUI({
   onAnalyze,
   onSubmit,
   renderResult,
+  scrollViewRef,
 }: BillSplitterUIProps) {
-  const scrollViewRef = React.useRef<ScrollView>(null);
+  const defaultScrollViewRef = React.useRef<ScrollView>(null);
+  const finalScrollViewRef = scrollViewRef || defaultScrollViewRef;
+
   // Scroll to results when they become available
   React.useEffect(() => {
-    if (result && scrollViewRef.current) {
+    if (result && finalScrollViewRef.current) {
       setTimeout(() => {
-        scrollViewRef.current?.scrollToEnd({ animated: true });
+        finalScrollViewRef.current?.scrollToEnd({ animated: true });
       }, 100);
     }
   }, [result]);
 
   return (
     <ScrollView 
-      ref={scrollViewRef}
+      ref={finalScrollViewRef}
       className="flex-1 bg-background"
     >
       <View className="flex-1 container mx-auto px-4 py-6 min-h-screen items-center justify-center">
